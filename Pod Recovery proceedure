@@ -1,0 +1,8 @@
+Pod Recovery proceedure
+if a student does somthing to a pod then clone the back up pod to their pod number and re-initalize the configuration .
+Use the Pod Initialization file to do that,   There are a few steps.  
+1.) open the WLC-Initalization.txt file, search and replace <POD#> with the number of the pod you are repairing. 
+2.) Clone the X-C9800-PODX file to the C9800-POD0(Pod number you are reparing)
+3.) Power up the pod and answer no to config wizzard , enter config mode and type in the first section of the pod initalizaion file you created in step 1.
+4.) ssh to the pod , and finish out the config file.   
+This should put the pod in a ready state.  make sure you save the initialized pod to C9800-POD(pod #)-Config for reset purposes 

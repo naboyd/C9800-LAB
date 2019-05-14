@@ -1,0 +1,19 @@
+Lab Shutdown Proceedures 
+
+1.) Reset Pods - on NUC02 , 
+
+	Connect to each pod (05-08) via  ssh or through virt-manager ,   
+	Copy C9800-POD0X-Config to startup-config 
+	then shutdown the pod, using virt-manager 
+2.) After all pods are shutdown , either from linux prompt or from gui shutdown the linux box.  (sudo shutdown -h now)
+
+3.) Connect to NUC01 
+	Connect to pod 01-04 via  ssh or through virt-manager ,  
+	copy C9800-POD0X-Config to startup-config 
+	shutdown the pod using virt-manager
+4.) Connect to ISE vm - from the console , application stop ise
+5.) validate ise node processes are stoped, then type from the  ise commandline  "halt" 
+6.) power down pod 00 
+7.) after all vms are shutwdown either from linux prompt or from gui shutdown the linux box.  (sudo shutdown -h now) 
+
+

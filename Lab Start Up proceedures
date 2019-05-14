@@ -1,0 +1,21 @@
+Lab Start Up proceedures
+
+1.) Power up Ethernet Switch 
+	Check console to make sure its up.  
+2.) Connect and power up ASA 
+3.) Connect and power up the Two NUCs. , Do NUC01 First then NUC02 
+4.) Run services checks on the NUCs . 
+	sudo systemctl status ntp
+	sudo systemctl status isc-dhcp-server 
+5.) verify DNS is working by pinging Google.com (Does it resolve? )
+6.) Start ISE VM Node
+7.) Login to ISE and verify system is up 
+	sho application status ise 
+8.) bring POD00 on line , 
+	Verify you can connect to @POD00_dot1x.  SSID this will validate ISE is working. 
+9.) bring up pods 1-4 
+10.) Reset each pod config, 
+	copy C9800-POD0X-Config startup-config 
+	reload system , do not save.... 
+
+	

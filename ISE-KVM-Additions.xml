@@ -1,0 +1,24 @@
+
+<!--  Create the VM according to the ISE deployment guide, 
+for KVM I usually use the GUI manager, 
+before starting go to the cli and find the .xml file KVM 
+creates it should be in /etc/libvirt/qemu for instance my VM is 
+named ISE-2.4. in the directory I have an ISE-2.4.xml file.
+Edit the VM XML file  using virsh
+naboyd@nuc03:/etc/libvirt/qemu$ sudo virsh edit ISE-2.4
+
+****** Insert below <vcpu> section .  *** -->
+
+  <sysinfo type='smbios'>
+    <system>
+      <entry name='product'>KVM</entry>
+    </system>
+    <baseBoard>
+      <entry name='product'>KVM</entry>
+    </baseBoard>
+  </sysinfo>
+
+<!-- *** Add Below Line to  <os> section --> 
+       <smbios mode='sysinfo'/>
+  </os>
+

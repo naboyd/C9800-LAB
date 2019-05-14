@@ -1,0 +1,78 @@
+! to initialize a new pod Copy this file to a new file.  
+! Do a find and replace on <Pod#> and replace it with the target pod number.
+! For example if you are targeting POD02  then replace <Pod#> with 2. 
+! From the virt-manager console of the pod , say no to the config wizard.  
+! Enter config mode and add the below commands to the config. 
+ 
+
+
+! Initial Configuration - Console
+!
+hostname C9800-POD0<Pod#>
+username netadmin password 0 CiscoDNA!
+username netadmin priv 15
+int vlan 1
+shut
+!
+!
+interface Gi1
+shut
+switchport
+switchport mode trunk
+no Shutdown
+vlan 10
+name Management_VLAN
+!
+!
+Int vlan 10
+Ip address 10.10.10.20<Pod#> 255.255.255.0
+desc Management_Interface
+ip route 0.0.0.0 0.0.0.0 10.10.10.254
+ip name-server 208.67.222.222
+ip ssh v 2
+
+line vty 0 4
+login local
+exit
+
+! 
+! SSH to WLC ssh netadmin@10.10.10.20<Pod#> 
+! Cut and Past the Below Config  
+en
+Config t
+ntp server 10.10.10.2 prefer
+clock timezone EST -4 0
+Vlan 1<Pod#>0
+Name POD0<Pod#>-Clients
+Vlan 1<Pod#>1
+Name POD0<Pod#>-AP
+Int vlan 10
+Ip address 10.10.10.20<Pod#> 255.255.255.0
+desc Managment_Interface
+int vlan 1<Pod#>1
+desc Wireless_AP_Manager
+ip address 10.10.1<Pod#>1.10 255.255.255.0
+exit
+
+wireless management interface vlan 1<Pod#>1
+wireless mgmt-via-wireless
+device classifier
+wireless mobility group name POD0<Pod#>
+wireless rf-network POD0<Pod#>
+ap dot11 5ghz shutdown
+y
+ap dot11 24ghz shutdown
+y
+ap country US
+y
+no ap dot11 5g shutdown
+no ap dot11 24 shutdown
+exit
+! Test interface 
+ping 10.10.1<Pod#>1.10
+! Set up AP Cert.  
+wireless config vwlc-ssc key-size 2048 signature-algo sha256 password 0 CiscoDNA!
+
+wr
+! Back up the Config 
+copy startup C9800-POD0<Pod#>-Config

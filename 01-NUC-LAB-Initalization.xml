@@ -1,0 +1,173 @@
+<Platform_Install>
+    <!--Install OS- Ubuntu 18.04 
+        Download from ubuntu.com and burn on an ISO 
+        https://www.ubuntu.com/download/desktop/thank-you?country=US&version=18.04.1&architecture=amd64
+
+        Burn to USB Stick / - Use Etcher
+        https://www.balena.io/etcher/ 
+    -->
+
+    <!--Boot platform from USB Stick and follow install instructions . 
+        The NUCs are defaulted to booting in UEFI mode. 
+        We need to change that, on first boot press the F2 Key when you see the NUC logo. 
+        Under boot disable or uncheck UEFI mode.  
+        Save and reboot, Press F10 to enter the boot menu and select the USB Key to boot from.   
+        Follow the Ubuntu Install directions.  
+        Select Normal Install , Select Third-Party Drivers, on the Partition page select LVM. 
+        Don't select Secure or you will have to enter a password to boot the platform.  
+        When prompted for User creation 
+    --> 
+    <Host_Name/>
+        role=primary, nodename=LABNUC01
+        role=secondary, nodename=LABNUC02
+    </Host_Name>
+    <User>
+        username = labadmin
+        password = Cisc0DN@  
+    </User>
+
+
+    <!--  Make sure the platform is up to date from linux prompt -->
+    <Plaform_Update>
+        sudo apt update
+        sudo apt list --upgradeable
+        sudo apt dist-upgrade
+    </Plaform_Update>
+
+</Platform_Install>
+<Configure_Networking> 
+    <!--We need to build a Bridge interface then the Virtuial Machienes will connect to the Bridge.     
+    Use the linux command to display network interfaces on the system. 
+    By default a process called Network Manager will be controling the interfaces.  We need to move that control to networkd process.  
+    We can do this by redirecting the default netplan config to leverage networkd. 
+    -->  
+
+    <disable_NetworkManager>
+        sudo systemctl stop NetworkManager
+        sudo systemctl disable NetworkManager
+    </disable_NetworkManager>
+
+    <!--  Run ip a to determin what the main ethernet interface is.  On my NUC it is "eno1" --> 
+    <Interface>
+        ip a 
+        <Interface_output>
+            1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+            link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00 inet 127.0.0.1/8 scope host lo valid_lft forever preferred_lft forever
+            inet6 ::1/128 scope host valid_lft forever preferred_lft forever
+            2: eno1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel master br0 state UP group default qlen 1000
+            link/ether 94:c6:91:af:50:c5 brd ff:ff:ff:ff:ff:ff
+        </Interface_output>
+    </Interface>
+
+    <!-- Configure Netplan file .  Netplan uses .yaml file format  it loves indents.. use a graphical editor
+    that supports .yaml files it will help.   Sublime , or Visual Studio Code can assist. 
+    So follow the included pattern correctly.  Two commands that go with Netplan are 
+    netplan generate , and netplan apply.   Generate will create the netplan config file , and check for errors.   netplan apply will apply the configuration.   Like mentioned before we are going to create a bridged interface called br0 
+    Compare to  01-netconfg.yaml 
+    -->
+    <Apply_network_config>
+        netplan generate 
+        netplan apply 
+    </Apply_network_config>
+</Configure_Networking>
+
+<Install_Services>
+<!-- Install KVM,  ISC-DHCPd ntp  Services -->
+    sudo apt update 
+    <!-- Core KVM Componants -->
+    sudo apt install qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils  
+    sudo apt install virt-manager
+    <!-- Network Services -->
+    sudo apt install isc-dhcp-server
+    sudo apt install ntp
+    sudo apt install bind9
+<Configure_Services>
+    <!-- Download  the services configuration tar file to the host labnuc01.services.tar >  
+        unpack the tar file These are the base configuration files needed for the services 
+    --> 
+    tar -xvf labnuc0x.services.tar 
+    
+    <Configure_DHCPD> 
+        <!-- Two key files in dhcp configuration , first is  /etc/default/isc-dhcp-server 
+        This file gives us the interface to listen on.  See DHCP Config file. 
+        Copy inclosed dhcp file to /etc/dhcpd/dhcpd.conf 
+        Be sure to note difference between platform LABNUC01 and LABNUC02  
+        Copy isc-dhcp-server /etc/default/isc-dhcp-server 
+        LABNUC01 will be Primary dhcp server LABNUC02 will be secondary 
+        -->
+    sudo cp labnuc01/etc/dhcpd/dhcp.conf /etc/dhcpd/dhcp.conf 
+    sudo cp labnuc01/etc/default/isc-dhcp-server /etc/default/isc-dhcp-server 
+        <!-- Edit the isc-dhcp-server file in /etc/default directory 
+            make sure the line : INTERFACESv4="eno1,br0,vlan10" reflects the interfaces 
+            you created using the 01-netplan-config.yaml file
+        -->
+        <DHCPd_Restart>
+            <!-- Restart the DHCPD service , Monitor the syslog to verify it is running,  open two terminal sessions to the host
+                 either from the desktop or ssh 
+            -->
+            <!-- In Window one -->
+            sudo tail -f /var/log/syslog | egrp "dhcpd"
+             <!-- In Window two -->
+            sudo systemctl restart isc-dhcp-server 
+            <!-- Watch the log file for messages like -->
+                May 13 13:40:07 LABNUC01 dhcpd[21154]: Config file: /etc/dhcp/dhcpd.conf
+                .
+                .                
+                May 13 13:40:08 LABNUC01 dhcpd[21154]: Listening on LPF/vlan10/b2:33:0e:bf:4b:69/10.10.10.0/24
+                May 13 13:40:08 LABNUC01 dhcpd[21154]: Sending on   LPF/vlan10/b2:33:0e:bf:4b:69/10.10.10.0/24
+                May 13 13:40:08 LABNUC01 dhcpd[21154]: Listening on LPF/br0/b2:33:0e:bf:4b:69/10.10.0.0/24
+                May 13 13:40:08 LABNUC01 dhcpd[21154]: Sending on   LPF/br0/b2:33:0e:bf:4b:69/10.10.0.0/24
+                .
+                .
+                May 13 13:40:08 LABNUC01 dhcpd[21154]: Server starting service.
+            </DHCPd_Restart>
+    </Configure_DHCPD> 
+
+    <Configure_NTP>
+        <!--Copy the ntp.conf file to the directory /etc/ 
+            By default the ntpd service is not enabled or started. 
+            First enable the ntp service with the systemctl enable command then start the service
+            Again with two terminal sessions one to watch the service start one to start the service. 
+        -->
+        sudo cp labnuc01/etc/ntp.conf /etc/ntp.conf 
+        <!-- In Window one -->
+         sudo tail -f /var/log/syslog | egrp "ntpd"
+        <!-- In Window two -->
+        sudo systemctl start ntp 
+        <!-- Watch the log file for messages like -->
+            May 13 13:51:12 LABNUC01 ntpd[21266]: Listen normally on 2 lo 127.0.0.1:123
+            May 13 13:51:12 LABNUC01 ntpd[21266]: Listen normally on 3 br0 10.10.0.2:123
+            May 13 13:51:12 LABNUC01 ntpd[21266]: Listen normally on 4 vlan10 10.10.10.2:123
+            May 13 13:51:13 LABNUC01 ntpd[21266]: Soliciting pool server 45.33.103.94
+            May 13 13:51:14 LABNUC01 ntpd[21266]: Soliciting pool server 108.61.73.244
+            May 13 13:51:14 LABNUC01 ntpd[21266]: Soliciting pool server 47.190.36.230
+            May 13 13:51:15 LABNUC01 ntpd[21266]: Soliciting pool server 173.255.140.30
+            May 13 13:51:15 LABNUC01 ntpd[21266]: Soliciting pool server 142.147.92.5
+            May 13 13:51:16 LABNUC01 ntpd[21266]: Soliciting pool server 185.144.157.134
+    </Configure_NTP>
+    <Configure_DNS>
+
+    </Configure_DNS>
+        <Configure_KVM>
+        <!--KVM has multiple componants libvirt and qemu are the two most prominant that we will have to deal with. 
+            home for the configuration files we need are in: /etc/libvirt directory structure.  
+            First we need to create a network that the pods will connect to.  We are going to leverage the bridge interface 
+            "br0" created with netplan.  The network file resides in /etc/libvirt/qemu/networks/ 
+        --> 
+        <Create_KVM_Network>
+        
+        </Create_KVM_Network>
+Create KVM for 9800 / Download 9800 Code to platform
+Create KVM for ISE , But don't start. 
+See ISE-KVM-Additions.xml --> 
+
+cd /etc/libvirt/qemu
+labadmin@host:/etc/libvirt/qemu$ virsh edit ISE-2.1 // No .xml on the end.
+
+
+// https://www.cisco.com/c/en/us/td/docs/wireless/controller/technotes/8-8/b_c9800_wireless_controller_virtual_dg.html
+</Configure_Services>
+// Check System Status
+sudo systemctl status isc-dhcp-server
+sudo systemctl status ntp
+sudo systemctl status networking

@@ -1,0 +1,10 @@
+Copy system files to Lab Directory
+/etc/default/isc-dhcp-server
+/etc/dhcp/dhcpd.conf
+/etc/network/interfaces
+/etc/ntp.conf
+
+
+
+initialize all pods
+clone pods
