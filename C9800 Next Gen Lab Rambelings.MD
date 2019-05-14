@@ -34,3 +34,5 @@ ASA is configured with three interfaces, Inside , Outside and MGMT.
 C9300-24:
 
 The switch is configured with one managment VLAN , VLAN 10 - 10.10.10.XXX subnet , and then two vlans per pod, 10.10.1x0 and 10.101.1x1 little x being pod number 1-8  clients on pod .1x0 and APs on .1x1 
+
+Files: 

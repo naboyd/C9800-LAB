@@ -1,0 +1,28 @@
+$ttl 38400
+9800-lab.cisco.com.     IN      SOA     labnuc01. 9800-lab.cisco.com. (
+                        1521325514
+                        10800
+                        3600
+                        604800
+                        38400 )
+; Name Servers
+
+        IN      NS      labnuc01.9800-lab.cisco.com.
+
+labnuc01                           IN      A       10.10.10.2
+labnuc01                           IN      A       10.10.0.2
+labnuc02                           IN      A       10.10.10.3
+labnuc02                           IN      A       10.10.0.3
+asa                                IN      A       10.10.0.1
+ise                                IN      A       10.10.0.20
+C9800-POD00                        IN      A       10.10.10.10
+C9800-POD01                        IN      A       10.10.10.201
+C9800-POD02                        IN      A       10.10.10.202
+C9800-POD03                        IN      A       10.10.10.203
+C9800-POD04                        IN      A       10.10.10.204
+C9800-POD05                        IN      A       10.10.10.205
+C9800-POD06                        IN      A       10.10.10.206
+C9800-POD07                        IN      A       10.10.10.207
+C9800-POD08                        IN      A       10.10.10.208
+C9800-POD09                        IN      A       10.10.10.209
+C9300                              IN      A       10.10.10.254
