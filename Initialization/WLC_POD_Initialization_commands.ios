@@ -28,7 +28,8 @@ Int vlan 10
 Ip address 10.10.10.20<Pod#> 255.255.255.0
 desc Management_Interface
 ip route 0.0.0.0 0.0.0.0 10.10.10.254
-ip name-server 208.67.222.222
+ip name-server 10.10.10.2
+ip domain-name C9800-testdrive.us 
 ip ssh v 2
 
 line vty 0 4
