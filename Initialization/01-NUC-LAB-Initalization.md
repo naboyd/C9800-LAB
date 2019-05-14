@@ -2,12 +2,11 @@
 
 ## Platform_Install
 
-   <p>Install OS- Ubuntu 18.04
+   <p>  Install OS- Ubuntu 18.04
         Download from ubuntu.com and burn on an ISO
         Ubuntu 18.04 Desktop
         https://www.ubuntu.com/download/desktop/thank-you?country=US&version=18.04.1&architecture=amd64
-
-        Burn to USB Stick. I use  
+        Burn to USB Stick. I use:
         Balena Etcher https://www.balena.io/etcher/
    </p>
 
@@ -19,23 +18,27 @@
         Follow the Ubuntu Install directions.  
         Select Normal Install , Select Third-Party Drivers, on the Partition page select LVM.
         Don't select Secure or you will have to enter a password to boot the platform.  
-        When prompted for User creation.  Let the install wizzard use DHCP at first to configure the NIC we will change that later.   </p>
+        When prompted for User creation.  Let the install wizzard use DHCP at first to configure the NIC we will change that later. 
+  </p>
 
 ### Host Name
 
-<p> Use the foollowing in configuring the hosts </p> 
+<p> Use the following in configuring the hosts
+</p> 
 
->role=primary host, nodename=LABNUC01
->role=secondary host, nodename=LABNUC02
->username = labadmin
->password = Cisc0DN@  
+>role=primary host, nodename=LABNUC01<br>
+>role=secondary host, nodename=LABNUC02<br>
+>username = labadmin<br>
+>password = Cisc0DN@<br>
 
 ## Plaform Update
 
 <p> Make sure the platform is up to date from linux prompt</p>
 
 <code> sudo apt update </code>
+
 <code> sudo apt list --upgradeable </code>
+
 <code> sudo apt dist-upgrade </code>
   
 ## Configure Networking
@@ -49,14 +52,14 @@
 ### Disable NetworkManager
 
 <code> sudo systemctl stop NetworkManager </code>
-<code>  sudo systemctl disable NetworkManager </code>
+<code> sudo systemctl disable NetworkManager</code>
     
 <p>Run the command <b>ip a</b> to determin what the main ethernet interface is.  On my NUC it is <b>"eno1"</b> 
 
 ### Configure Interface
 
 **From the command prompt type:**
-<code>ip a </code>
+<code>ip a</code>
 
 **Interface output**
 >1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
