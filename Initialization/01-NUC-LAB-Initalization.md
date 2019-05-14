@@ -6,7 +6,7 @@
         Download from ubuntu.com and burn on an ISO
         Ubuntu 18.04 Desktop
         https://www.ubuntu.com/download/desktop/thank-you?country=US&version=18.04.1&architecture=amd64
-        Burn to USB Stick. I use:
+        Burn to USB Stick. I use:<br>
         Balena Etcher https://www.balena.io/etcher/
    </p>
 
@@ -23,8 +23,7 @@
 
 ### Host Name
 
-<p> Use the following in configuring the hosts
-</p> 
+<p> Use the following in configuring the hosts<br></p> 
 
 >role=primary host, nodename=LABNUC01<br>
 >role=secondary host, nodename=LABNUC02<br>
@@ -35,11 +34,9 @@
 
 <p> Make sure the platform is up to date from linux prompt</p>
 
-<code> sudo apt update </code>
-
-<code> sudo apt list --upgradeable </code>
-
-<code> sudo apt dist-upgrade </code>
+<code> sudo apt update </code><br>
+<code> sudo apt list --upgradeable </code><br>
+<code> sudo apt dist-upgrade </code><br>
   
 ## Configure Networking
 
@@ -51,15 +48,15 @@
 
 ### Disable NetworkManager
 
-<code> sudo systemctl stop NetworkManager </code>
-<code> sudo systemctl disable NetworkManager</code>
+<code> sudo systemctl stop NetworkManager </code><br>
+<code> sudo systemctl disable NetworkManager</code><br>
     
 <p>Run the command <b>ip a</b> to determin what the main ethernet interface is.  On my NUC it is <b>"eno1"</b> 
 
 ### Configure Interface
 
 **From the command prompt type:**
-<code>ip a</code>
+<code>ip a</code><br>
 
 **Interface output**
 >1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
@@ -78,34 +75,34 @@
 #### Apply network config
 
 <p> Two commands that go with Netplan are : </p>
-    - netplan generate 
-    - netplan apply.  
+ - netplan generate<br> 
+ - netplan apply.<br>
 <p> Generate will create the netplan config file , and check for errors.   netplan apply will apply the configuration.   Like mentioned before we are going to create a bridged interface called br0 
 Compare to  01-netconfg.yaml 
 </p>
 
 **From the command prompt:** 
-<code>   netplan generate</code>
-<code>   netplan apply</code> 
+<code>   netplan generate</code><br>
+<code>   netplan apply</code> <br>
 
 ## Install Services
 
 <p>Install KVM,  ISC-DHCPd, lldp and Services </p>
-<code>    sudo apt update<code>
+<code>    sudo apt update<code><br>
 
 ### Core KVM Componants 
 
 **From the command prompt:** 
-    <code>sudo apt install qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils  
+    <code>sudo apt install qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils <br> 
     sudo apt install virt-manager </code>
 
 ### Network Services
 
 **From the command prompt:** 
-    <code>sudo apt install isc-dhcp-server
-    sudo apt install ntp
-    sudo apt install lldpd snmpd 
-    sudo apt install bind9</code>
+    <code>sudo apt install isc-dhcp-server<br>
+    sudo apt install ntp<br>
+    sudo apt install lldpd snmpd<br> 
+    sudo apt install bind9</code><br>
 
 ## Configure Services
 
