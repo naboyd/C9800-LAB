@@ -1,0 +1,294 @@
+
+!
+! Last configuration change at 08:39:28 EST Wed May 1 2019 by netadmin
+! NVRAM config last updated at 08:46:37 EST Wed May 1 2019 by netadmin
+!
+version 16.11
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service call-home
+platform qfp utilization monitor load 80
+no platform punt-keepalive disable-kernel-core
+platform console virtual
+!
+hostname C9800-POD04
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+clock timezone EST -4 0
+clock calendar-valid
+call-home
+ ! If contact email address in call-home is configured as sch-smart-licensing@cisco.com
+ ! the email address configured in Cisco Smart License Portal will be used as contact email address to send SCH notifications.
+ contact-email-addr sch-smart-licensing@cisco.com
+ profile "CiscoTAC-1"
+  active
+  destination transport-method http
+  no destination transport-method email
+!
+!
+!
+!
+!
+!
+!
+ip name-server 208.67.222.222
+!
+!
+!
+login on-success log
+!
+!
+!
+!
+!
+!
+!
+subscriber templating
+! 
+! 
+! 
+! 
+!
+no device-tracking logging theft
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+crypto pki server WLC_CA
+ database archive pkcs12 password 7 096F471A1A0A333C2A4D
+ issuer-name O=Cisco Virtual Wireless LAN Controller, CN=CA-vWLC_C9800-POD04
+ grant auto
+ hash sha256
+ lifetime certificate 3652
+ lifetime ca-certificate 3652
+!
+crypto pki trustpoint SLA-TrustPoint
+ enrollment pkcs12
+ revocation-check crl
+!
+crypto pki trustpoint TP-self-signed-2759662934
+ enrollment selfsigned
+ subject-name cn=IOS-Self-Signed-Certificate-2759662934
+ revocation-check none
+ rsakeypair TP-self-signed-2759662934
+!
+crypto pki trustpoint WLC_CA
+ revocation-check crl
+ rsakeypair WLC_CA
+!
+crypto pki trustpoint C9800-POD04_WLC_TP
+ enrollment url http://10.10.141.10:80
+ serial-number
+ password 7 01300F1758042221000D
+ subject-name O=Cisco Virtual Wireless LAN Controller, CN=C9800-POD04_WLC_TP
+ revocation-check crl
+ rsakeypair C9800-POD04_WLC_TP
+ hash sha256
+ eku request server-auth client-auth 
+!
+!
+crypto pki certificate chain SLA-TrustPoint
+ certificate ca 01 nvram:CiscoLicensi#1CA.cer
+crypto pki certificate chain TP-self-signed-2759662934
+ certificate self-signed 01 nvram:IOS-Self-Sig#2.cer
+crypto pki certificate chain WLC_CA
+ certificate ca 01 nvram:CiscoVirtual#2CA.cer
+crypto pki certificate chain C9800-POD04_WLC_TP
+ certificate 02 nvram:CiscoVirtual#3.cer
+ certificate ca 01 nvram:CiscoVirtual#2CA.cer
+!
+!
+!
+!
+!
+!
+!
+!
+license udi pid C9800-CL-K9 sn 9SQC3CNUH82
+device classifier
+diagnostic bootup level minimal
+memory free low-watermark processor 73288
+!
+!
+!
+username netadmin privilege 15 password 0 CiscoDNA!
+!
+redundancy
+ mode sso
+!
+!
+!
+!
+!
+vlan internal allocation policy ascending
+!
+!
+class-map match-any AVC-Reanchor-Class
+ match protocol cisco-jabber-audio
+ match protocol cisco-jabber-video
+ match protocol webex-media
+ match protocol webex-app-sharing
+ match protocol webex-control
+ match protocol webex-meeting
+ match protocol wifi-calling
+! 
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+! 
+! 
+!
+!
+interface GigabitEthernet1
+ switchport mode trunk
+ negotiation auto
+ no mop enabled
+ no mop sysid
+!
+interface Vlan1
+ ip address dhcp
+ shutdown
+ no mop enabled
+ no mop sysid
+!
+interface Vlan10
+ description Managment_Interface
+ ip address 10.10.10.204 255.255.255.0
+ no mop enabled
+ no mop sysid
+!
+interface Vlan141
+ description Wireless_AP_Manager
+ ip address 10.10.141.10 255.255.255.0
+ no mop enabled
+ no mop sysid
+!
+ip forward-protocol nd
+ip http server
+ip http authentication local
+ip http secure-server
+ip http client source-interface Vlan1
+!
+ip route 0.0.0.0 0.0.0.0 10.10.10.254
+ip ssh version 2
+ip scp server enable
+!
+!
+!
+!
+!
+control-plane
+!
+!
+!
+!
+!
+!
+line con 0
+ stopbits 1
+line vty 0 4
+ login local
+line vty 5 15
+ login
+!
+ntp server 10.10.10.2 prefer
+!
+!
+!
+!
+!
+!
+wireless aaa policy default-aaa-policy
+wireless cts-sxp profile default-sxp-profile
+wireless management trustpoint C9800-POD04_WLC_TP
+wireless management interface Vlan141
+wireless profile airtime-fairness default-atf-policy 0
+wireless profile flex default-flex-profile
+ description "default flex profile"
+wireless profile mesh default-mesh-profile
+ description "default mesh profile"
+wireless profile policy default-policy-profile
+ description "default policy profile"
+wireless tag site default-site-tag
+ description "default site tag"
+wireless tag policy default-policy-tag
+ description "default policy-tag"
+wireless tag rf default-rf-tag
+ description "default RF tag"
+wireless mgmt-via-wireless
+wireless fabric control-plane default-control-plane
+ap dot11 24ghz rf-profile Low_Client_Density_rf_24gh
+ coverage data rssi threshold -90
+ coverage level 2
+ coverage voice rssi threshold -90
+ description "pre configured Low Client Density rfprofile for 2.4gh radio"
+ high-density rx-sop threshold low
+ tx-power v1 threshold -65
+ no shutdown
+ap dot11 24ghz rf-profile High_Client_Density_rf_24gh
+ description "pre configured High Client Density rfprofile for 2.4gh radio"
+ high-density rx-sop threshold medium
+ rate RATE_11M disable
+ rate RATE_12M mandatory
+ rate RATE_1M disable
+ rate RATE_2M disable
+ rate RATE_5_5M disable
+ rate RATE_6M disable
+ tx-power min 7
+ no shutdown
+ap dot11 24ghz rf-profile Typical_Client_Density_rf_24gh
+ description "pre configured Typical Client Density rfprofile for 2.4gh radio"
+ rate RATE_11M disable
+ rate RATE_12M mandatory
+ rate RATE_1M disable
+ rate RATE_2M disable
+ rate RATE_5_5M disable
+ rate RATE_6M disable
+ no shutdown
+ap dot11 5ghz rf-profile Low_Client_Density_rf_5gh
+ coverage data rssi threshold -90
+ coverage level 2
+ coverage voice rssi threshold -90
+ description "pre configured Low Client Density rfprofile for 5gh radio"
+ high-density rx-sop threshold low
+ tx-power v1 threshold -60
+ no shutdown
+ap dot11 5ghz rf-profile High_Client_Density_rf_5gh
+ description "pre configured High Client Density rfprofile for 5gh radio"
+ high-density rx-sop threshold medium
+ rate RATE_6M disable
+ rate RATE_9M disable
+ tx-power min 7
+ tx-power v1 threshold -65
+ no shutdown
+ap dot11 5ghz rf-profile Typical_Client_Density_rf_5gh
+ description "pre configured Typical Density rfprofile for 5gh radio"
+ no shutdown
+ap country US
+ap tag-source-priority 2 source filter
+ap tag-source-priority 3 source ap
+ap profile default-ap-profile
+ description "default ap profile"
+ hyperlocation ble-beacon 0
+ hyperlocation ble-beacon 1
+ hyperlocation ble-beacon 2
+ hyperlocation ble-beacon 3
+ hyperlocation ble-beacon 4
+end

@@ -1,0 +1,26 @@
+network:
+
+    version: 2
+
+    renderer: networkd
+
+    ethernets:
+      eno1:
+        dhcp4: no
+        
+    bridges:
+      br0:     
+        addresses: [10.10.0.2/24]
+        gateway4: 10.10.0.254
+        nameservers:
+            addresses: [208.67.222.222]
+        interfaces:
+          - eno1
+
+    vlans:
+       vlan10:
+         accept-ra: no
+         id: 10
+         link: br0
+         addresses: [10.10.10.2/24]
+       
