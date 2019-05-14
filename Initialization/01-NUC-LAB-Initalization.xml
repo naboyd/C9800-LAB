@@ -80,11 +80,14 @@
     <!-- Network Services -->
     sudo apt install isc-dhcp-server
     sudo apt install ntp
+    sudo apt install lldpd snmpd 
     sudo apt install bind9
 <Configure_Services>
     <!-- Download  the services configuration tar file to the host labnuc01.services.tar >  
         unpack the tar file These are the base configuration files needed for the services 
-    --> 
+   if you do this from the gui the files will be in the /home/labadmin/Downloads/ directory  
+   --> 
+    
     tar -xvf labnuc0x.services.tar 
     
     <Configure_DHCPD> 
@@ -146,9 +149,70 @@
             May 13 13:51:16 LABNUC01 ntpd[21266]: Soliciting pool server 185.144.157.134
     </Configure_NTP>
     <Configure_DNS>
-
+     <!-- Bind 9 DNS is used to provide name services for the lab.  Bind is only running on one node labnuc01 
+     to configure there are 5 main files we need to be concerned with to make sure we have a solid DNS resolution system.  
+     named.conf 
+     named.conf.options
+     named.conf.local
+     10.10.db 
+     9800-lab.cisco.com.db
+     -->
     </Configure_DNS>
-        <Configure_KVM>
+    <Configure_LLDP>
+        <!-- LLDP can be used to validate that the networking bridges are working ok, LLDPD supports both LLDP and CDPv1,V2. 
+        To configure lldpc copy the lldpd file from the  labnuc01/etc/default/ to /etc/default/ then restart the service-->   
+        sudo cp labnuc01/etc/default/lldpd /etc/default/lldpd
+        sudo systemctl enable lldpd 
+        sudo systemctl start lldpd 
+        <!-- Check the status of the process -->
+        sudo systemctl status lldpd
+        <!-- Watch the log file for messages like -->  
+             lldpd.service - LLDP daemon
+                Loaded: loaded (/lib/systemd/system/lldpd.service; enabled; vendor preset: enabled)
+                Active: active (running) since Tue 2019-05-14 09:59:03 EDT; 6s ago
+                    Docs: man:lldpd(8)
+                Process: 8934 ExecStartPre=/bin/mkdir -p /var/run/lldpd (code=exited, status=0/SUCCESS)
+                Main PID: 8936 (lldpd)
+                    Tasks: 2 (limit: 4915)
+                CGroup: /system.slice/lldpd.service
+                        ├─8936 lldpd: monitor. 
+                        └─8938 lldpd: connected to c9800-POD08.
+
+                May 14 09:59:03 LABNUC02 lldpd[8938]: protocol LLDP enabled
+                May 14 09:59:03 LABNUC02 lldpd[8938]: protocol CDPv1 enabled
+                May 14 09:59:03 LABNUC02 lldpd[8938]: protocol CDPv2 enabled
+                May 14 09:59:03 LABNUC02 lldpd[8938]: protocol SONMP disabled
+                May 14 09:59:03 LABNUC02 lldpd[8938]: protocol EDP disabled
+                May 14 09:59:03 LABNUC02 lldpd[8938]: protocol FDP disabled
+                May 14 09:59:03 LABNUC02 lldpd[8938]: libevent 2.1.8-stable initialized with epoll method
+                May 14 09:59:03 LABNUC02 lldpd[8938]: enable SNMP subagent
+                May 14 09:59:03 LABNUC02 lldpd[8938]: NET-SNMP version 5.7.3 AgentX subagent connected
+                May 14 09:59:03 LABNUC02 lldpcli[8937]: lldpd should resume operations
+        <!-- Check for Neighbors --> 
+        lldpcli show neighbors 
+        <!-- Output should look like this --> 
+            LLDP neighbors:
+            -------------------------------------------------------------------------------
+            Interface:    br0, via: CDPv2, RID: 1, Time: 14 days, 12:54:19
+            Chassis:     
+                ChassisID:    local C9300-24
+                SysName:      C9300-24
+                SysDescr:     cisco C9300-24P running on
+                            Cisco IOS Software [Fuji], Catalyst L3 Switch Software (CAT9K_IOSXE), Version 16.8.1s, RELEASE 
+            SOFTWARE (fc2)
+                            Technical Support: http://www.cisco.com/techsupport
+                            Copyright (c) 1986-2018 by Cisco Systems, Inc.
+                            Compiled Sat 26-May-18 23:31 by mcpre
+                MgmtIP:       10.10.0.254
+                Capability:   Bridge, on
+                Capability:   Router, on
+            Port:        
+                PortID:       ifname GigabitEthernet1/0/3
+                PortDescr:    GigabitEthernet1/0/3
+                TTL:          180
+  
+    </Configure_LLDP>
+    <Configure_KVM>
         <!--KVM has multiple componants libvirt and qemu are the two most prominant that we will have to deal with. 
             home for the configuration files we need are in: /etc/libvirt directory structure.  
             First we need to create a network that the pods will connect to.  We are going to leverage the bridge interface 

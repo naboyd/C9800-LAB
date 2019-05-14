@@ -1,11 +1,11 @@
 
-# C9800 Next Gen Lab Rambelings
+# C9800 Next Gen Lab Ramblings
 
-Core to this lab is running the C9800-CL in a KVM enviroment on an Intel NUC platform.   This combination was selected due to the compact nature of the NUC and the low power and noise of the platform as-well.  KVM on Ubunut was selected due to the dirver support for the NUC platform and the ability to run other services on the host (dhcpd, dns etc.) VMWare requires licenses, VCenter, and special driver builds for the NUC. 
+Core to this lab is running the C9800-CL in a KVM enviroment on an Intel NUC platform.   This combination was selected due to the compact nature of the NUC and the low power and noise of the platform as-well.  KVM on Ubunut was selected due to the dirver support for the NUC platform and the ability to run other services on the host (dhcpd, dns etc.) VMWare requires licenses, VCenter, and special driver builds for the NUC.
 
 ## Lab Organization
 
-ASA - Outside / NAT services Outside interface does DHCP , intent is to connect to Cisco / Partner network to connect the LAB to the internet.  For Cisco Networks please request IOT access for the MAC address of the Outside interface G/1 from the eSTORE application. 
+ASA - Outside / NAT services Outside interface does DHCP , intent is to connect to Cisco / Partner network to connect the LAB to the internet.  For Cisco Networks please request IOT access for the MAC address of the Outside interface G/1 from the eSTORE application.
 
 C9300-24 Main Router/switch for the network.  
 
@@ -30,15 +30,18 @@ C9800-CLs configured with 4gb ram 8gb of Disk 4gb is lower then minimum requirem
 
 ### Infrastructure
 
-ASA - configuration
+#### ASA
+
 ASA is configured with three interfaces, Inside , Outside and MGMT.
 
-C9300-24:
+#### C9300-24
 
-The switch is configured with one managment VLAN , VLAN 10 - 10.10.10.XXX subnet , and then two vlans per pod, 10.10.1x0 and 10.101.1x1 little x being pod number 1-8  clients on pod .1x0 and APs on .1x1 
+The switch is configured with one managment VLAN , VLAN 10 - 10.10.10.XXX subnet , and then two vlans per pod, 10.10.1x0 and 10.101.1x1 little x being pod number 1-8  clients on pod .1x0 and APs on .1x1
 
 ## Files
 
 **./IOS-XE-Confgs** folder contains the lab pod configurations and C9300 Configurations.
-**./Proceedures** folder contains guides on startup and shutdown of the pods.
+
+**./Procedures** folder contains guides on startup and shutdown of the pods.
+
 **./Initialization** folder contains proceedures for initial set up of the lab and initialization of the pods.
