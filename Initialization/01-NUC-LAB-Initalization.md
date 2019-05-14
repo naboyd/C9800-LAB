@@ -4,40 +4,43 @@
 
    <p>Install OS- Ubuntu 18.04
         Download from ubuntu.com and burn on an ISO
-       [Ubuntu 18.04 Desktop](https://www.ubuntu.com/download/desktop/thank-you?country=US&version=18.04.1&architecture=amd64)
+        Ubuntu 18.04 Desktop
+        https://www.ubuntu.com/download/desktop/thank-you?country=US&version=18.04.1&architecture=amd64
 
-        Burn to USB Stick / - Use [Balena Etcher](https://www.balena.io/etcher/)
+        Burn to USB Stick. I use  
+        Balena Etcher https://www.balena.io/etcher/
    </p>
 
-   <p> Boot platform from USB Stick and follow install instructions .
-        The NUCs are defaulted to booting in UEFI mode.
-        We need to change that, on first boot press the F2 Key when you see the NUC logo.
-        Under boot disable or uncheck UEFI mode.  
+   <p>  Boot platform from USB Stick and follow install instructions .
+        The Intel NUCs are defaulted to booting in UEFI mode, We need to change this. 
+        On first boot,  press the F2 Key when you see the NUC logo, don't worry if you miss it just reboot the platform. 
+        Under boot section of the gui BIOS, disable or uncheck UEFI mode.  
         Save and reboot, Press F10 to enter the boot menu and select the USB Key to boot from.
         Follow the Ubuntu Install directions.  
         Select Normal Install , Select Third-Party Drivers, on the Partition page select LVM.
         Don't select Secure or you will have to enter a password to boot the platform.  
-        When prompted for User creation.  Let the install use DHCP at first to configure the NIC we will change that later. 
-   </p>
+        When prompted for User creation.  Let the install wizzard use DHCP at first to configure the NIC we will change that later.   </p>
 
 ### Host Name
 
-        role=primary, nodename=LABNUC01
-        role=secondary, nodename=LABNUC02
-        username = labadmin
-        password = Cisc0DN@  
+<p> Use the foollowing in configuring the hosts </p> 
+
+>role=primary host, nodename=LABNUC01
+>role=secondary host, nodename=LABNUC02
+>username = labadmin
+>password = Cisc0DN@  
 
 ## Plaform Update
 
-<p> Make sure the platform is up to date from linux prompt
-</p>
+<p> Make sure the platform is up to date from linux prompt</p>
+
 <code> sudo apt update </code>
 <code> sudo apt list --upgradeable </code>
 <code> sudo apt dist-upgrade </code>
   
 ## Configure Networking
 
-<p>    We need to build a Bridge interface then the Virtuial Machienes will connect to the Bridge.
+<p> We need to build a Bridge interface then the Virtuial Machienes will connect to the Bridge.
     Use the linux command to display network interfaces on the system.
     By default a process called Network Manager will be controling the interfaces.  We need to move that control to networkd process.  
     We can do this by redirecting the default netplan config to leverage networkd
@@ -48,33 +51,35 @@
 <code> sudo systemctl stop NetworkManager </code>
 <code>  sudo systemctl disable NetworkManager </code>
     
-<p>Run ip a to determin what the main ethernet interface is.  On my NUC it is "eno1" --> 
+<p>Run the command <b>ip a</b> to determin what the main ethernet interface is.  On my NUC it is <b>"eno1"</b> 
 
 ### Configure Interface
 
-<p> Frome the command prompt type: </p>
-<code>ip a </Code>
+**From the command prompt type:**
+<code>ip a </code>
 
 **Interface output**
-        <p> 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
-            link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00 inet 127.0.0.1/8 scope host lo valid_lft forever preferred_lft forever
-            inet6 ::1/128 scope host valid_lft forever preferred_lft forever
-            2: eno1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel master br0 state UP group default qlen 1000
-            link/ether 94:c6:91:af:50:c5 brd ff:ff:ff:ff:ff:ff
-       </p>
+>1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+>ink/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00 inet 127.0.0.1/8 scope host lo valid_lft forever preferred_lft >forever
+>inet6 ::1/128 scope host valid_lft forever preferred_lft forever
+>2: eno1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel master br0 state UP group default qlen 1000
+>link/ether 94:c6:91:af:50:c5 brd ff:ff:ff:ff:ff:ff
 
 #### Configure Netplan
 
 <p> Configure Netplan file .  Netplan uses .yaml file format  it loves indents.. use a graphical editor
     that supports .yaml files it will help.   Sublime , or Visual Studio Code can assist.
     So follow the included pattern correctly.
-    </p>
+</p>
 
 #### Apply network config
 
-<p> Two commands that go with Netplan are 
-    netplan generate , and netplan apply.   Generate will create the netplan config file , and check for errors.   netplan apply will apply the configuration.   Like mentioned before we are going to create a bridged interface called br0 
-    Compare to  01-netconfg.yaml  </p>
+<p> Two commands that go with Netplan are : </p>
+    - netplan generate 
+    - netplan apply.  
+<p> Generate will create the netplan config file , and check for errors.   netplan apply will apply the configuration.   Like mentioned before we are going to create a bridged interface called br0 
+Compare to  01-netconfg.yaml 
+</p>
 
 **From the command prompt:** 
 <code>   netplan generate</code>
