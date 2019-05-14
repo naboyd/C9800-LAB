@@ -1,7 +1,7 @@
 
 # C9800 Next Gen Lab Ramblings
 
-Core to this lab is running the C9800-CL in a KVM enviroment on an Intel NUC platform.   This combination was selected due to the compact nature of the NUC and the low power and noise of the platform as-well.  KVM on Ubunut was selected due to the dirver support for the NUC platform and the ability to run other services on the host (dhcpd, dns etc.) VMWare requires licenses, VCenter, and special driver builds for the NUC.
+Core to this lab is running the C9800-CL in a KVM enviroment on an Intel NUC platform.   This combination was selected due to the compact nature of the NUC and the low power and noise of the platform as-well.  KVM on Ubunut was selected due to the dirver support for the NUC platform and the ability to run other services on the host (dhcpd, dns etc.) VMWare requires licenses, VCenter, and special driver builds for the Intel NUC.
 
 ## Lab Organization
 
