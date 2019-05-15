@@ -91,7 +91,7 @@ Files stored in the Initialization directory provide the bases for getting the l
 - Copy the configuration from the **[IOS-XE-Config](https://github.com/naboyd/C9800-LAB/tree/master/IOS-XE-Configs)** directory and paste it into a console window of a un-configured ASA 5506.  If you have a different model you will need to adjust the interface configurations to match.  Connect the Outside interface to a port where you can get a DHCP assigned address and internet connectivity.
 - Copy the configuration form the **[IOS-XE-Config](https://github.com/naboyd/C9800-LAB/tree/master/IOS-XE-Configs)**  directory for the 9300 Switch and paste it in a console window of an un-configured switch.  If you are using a different model (More Ports etc) then you will have to adjust the config before applying it.
 - In the case of this configuration use port 21 for your personal laptop or host. You can also use this port for LAB Administration and proctoring during the sessions. To begin you will have to statically assign an ip Address to your host in the 10.10.0.x/24 range. Don't use .1,.2,.3,.10,.20 or .254 I think 10.10.0.99/24 would be a good address , your default gateway should be 10.10.0.254 and DNS to start with 208.67.222.222 (Shameless Plug for OpenDNS). 
-- Once your host is connected and can reach the internet, then follow the **[01-NUC-Host-Initialization](01-NUC-Host-Initalization.md)** guide to power up and configure the hosts.
+- Once your host is connected and can reach the internet, then follow the **[01-NUC-Host-Initialization](Initialization/01-NUC-Host-Initalization.md)** guide to power up and configure the hosts.
 
 ## Acknowledgements
 
