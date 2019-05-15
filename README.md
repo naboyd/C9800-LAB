@@ -1,7 +1,7 @@
 
 # C9800 Next Gen. Lab Ramblings
 
-Core to this lab is running the C9800-CL in a KVM environment on an Intel NUC platform.   This combination was selected due to the compact nature of the NUC and the low power and noise of the platform as-well.  KVM on Ubunut was selected due to the driver support for the NUC platform and the ability to run other services on the host (dhcpd, dns etc.) VMWare requires licenses, VCenter, and special driver builds for the Intel NUC. 
+Core to this lab is running the C9800-CL in a KVM environment on an Intel NUC platform.   This combination was selected due to the compact nature of the NUC and the low power and noise of the platform as-well.  KVM on Ubuntu was selected due to the driver support for the NUC platform and the ability to run other services on the host (dhcpd, dns etc.) VMWare requires licenses, VCenter, and special driver builds for the Intel NUC.
 
 ## Lab Organization
 
@@ -13,13 +13,22 @@ C9300-24 Main Router/switch for the network.
 
 Two NUC platforms running 32GB RAM , 1TB HD and QuadCore 8th Generation i7s are the base build.  
 
-LABNUC01 is running isc-dhcp-server, ntp, bind9 and KVM with the following Virtual Machines
+LABNUC01 is running:
 
-- ISE
-- POD00 - Master POD
-- POD01 - POD04  
-LABNUC02 is running isc-dhcp-server (failover) ntp KVM
-- POD05 - POD08
+- ISE-DHCP-SERVER (Primary)
+- NTP
+- BIND9 DNS
+- KVM
+  - Guest: ISE
+  - Guest: POD00 - Master POD
+  - Guest: POD01 - POD04  
+
+LABNUC02 is running:
+
+- ISE-DHCP-SERVER (Secondary)
+- NTP
+- KVM
+  - Guest: POD05 - POD08
 
 ### VLAN Structure
 
@@ -35,14 +44,13 @@ VLAN 10 - Management VLAN , This is where all the Students will end up when they
 - VM ISE - ISE Node - 8GB RAM - 200GB HD Space
 - VM POD01 - POD08  Student Pods - 4GB RAM 8GB 
 
-***C9800-CLs configured with 4gb ram 8gb of Disk 4gb is lower then minimum requirement but i have not experienced any issues so far.***
+>***C9800-CLs configured with 4gb ram 8gb of Disk 4gb is lower then minimum requirement but i have not experienced any issues so far.***
 
 #### Pod Networking
 
-The VM Guests connect to the KVM network interface br0 which is bridged to the linux interface br0 (just to add confusion).  This connectivity allows the Cisco C9800-CL PODS to build a 802.1q trunk off their GigibitEthernet 1 interface. Cisco Identity Services Engine (ISE) just uses the Native VLAN on its GigibitEtherent 1 interface to talk to the switch.
+The VM Guests connect to the KVM network via interface br0 which is bridged to the linux interface br0 (just to add confusion).  This connectivity allows the Cisco C9800-CL PODS to build a 802.1q trunk off their GigibitEthernet 1 interface. Cisco Identity Services Engine (ISE) just uses the Native VLAN on its GigibitEtherent 1 interface to talk to the switch.
 
 ![Pod Networking Architecture](https://github.com/naboyd/C9800-LAB/blob/master/Cat9kLABDrawings/Host%20Architecture.png)
-
 
 ### Infrastructure
 
@@ -61,8 +69,8 @@ The switch is configured with one management VLAN , VLAN 10 - 10.10.10.XXX subne
 - **[./IOS-XE-Confgs](https://github.com/naboyd/C9800-LAB/tree/master/IOS-XE-Configs)** folder contains the lab pod configurations and C9300 Configurations and ASA , Yes I know its not IOS-EX but.. 
 - **[./Procedures](https://github.com/naboyd/C9800-LAB/tree/master/Procedures)** folder contains guides on startup and shutdown of the pods.
 - **[./Initialization](https://github.com/naboyd/C9800-LAB/tree/master/Initialization)** folder contains procedures for initial set up of the lab and initialization of the pods.
-  - **[./Initialization/01-NUC-LAB-Initialization.md](https://github.com/naboyd/C9800-LAB/blob/master/Initialization/01-NUC-LAB-Initalization.md)** is a file explaining how to set up the Intel NUC with Unbuntu, KVM and network Services.
-  - **[./Initialization/WLC_POD_Initialization_commands.ios](https://github.com/naboyd/C9800-LAB/blob/master/Initialization/WLC_POD_Initialization_commands.ios)** file with the base commands to bootstrap 9800-CL with      out going through the DAY0 Config Wizzard.  
+  - **[./Initialization/01-NUC-LAB-Initialization.md](https://github.com/naboyd/C9800-LAB/blob/master/Initialization/01-NUC-LAB-Initalization.md)** is a file explaining how to set up the Intel NUC with Ubuntu, KVM and network Services.
+  - **[./Initialization/WLC_POD_Initialization_commands.ios](https://github.com/naboyd/C9800-LAB/blob/master/Initialization/WLC_POD_Initialization_commands.ios)** file with the base commands to bootstrap 9800-CL with      out going through the DAY0 Config Wizard.  
 - **[./Sample Files](https://github.com/naboyd/C9800-LAB/tree/master/Sample%20Files)** folder contains example files.
 - **[./Host_Configurations](https://github.com/naboyd/Host_Configurations)** contains the relevant host configuration files.
 
@@ -74,7 +82,16 @@ Just a few suggestions, not necessarily required to get things working but they 
 
 2. Download from Cisco.com the Cisco CLI Analyzer its a good tool for launch ssh CLI Sessions, especially if your managing the LAB and need to quickly access a students POD.
 
-3. If  you need to move files around, I have found that **scp** (secure copy) is the easiest way. Cisco IOS, Apple MACOS, and Linux nativly support it. For Microsoft Windows users, there are tools available to do **scp** from Microsoft Windows.
+3. If  you need to move files around, I have found that **scp** (secure copy) is the easiest way. Cisco IOS, Apple MACOS, and Linux natively support it. For Microsoft Windows users, there are tools available to do **scp** from Microsoft Windows.
+
+## Building the Lab
+
+Files stored in the Initialization directory provide the bases for getting the lab equipment up and running. Procedurally start with your NAT and internet gateway, move on to the core L3 switch then to building the hosts.  For these instructions its the Cisco ASA 5506 and a Cisco Catalyst 9300-24.
+
+- Copy the configuration from the **[IOS-XE-Config](https://github.com/naboyd/C9800-LAB/tree/master/IOS-XE-Configs)** directory and paste it into a console window of a un-configured ASA 5506.  If you have a different model you will need to adjust the interface configurations to match.  Connect the Outside interface to a port where you can get a DHCP assigned address and internet connectivity.
+- Copy the configuration form the **[IOS-XE-Config](https://github.com/naboyd/C9800-LAB/tree/master/IOS-XE-Configs)**  directory for the 9300 Switch and paste it in a console window of an un-configured switch.  If you are using a different model (More Ports etc) then you will have to adjust the config before applying it.
+- In the case of this configuration use port 21 for your personal laptop or host. You can also use this port for LAB Administration and proctoring during the sessions. To begin you will have to statically assign an ip Address to your host in the 10.10.0.x/24 range. Don't use .1,.2,.3,.10,.20 or .254 I think 10.10.0.99/24 would be a good address , your default gateway should be 10.10.0.254 and DNS to start with 208.67.222.222 (Shameless Plug for OpenDNS). 
+- Once your host is connected and can reach the internet, then follow the **[01-NUC-Host-Initialization](01-NUC-Host-Initalization.md)** guide to power up and configure the hosts.
 
 ## Acknowledgements
 
@@ -84,4 +101,4 @@ And of course , Catalyst 9800-CL is a product and brand of Cisco, Intel NUC, and
 
 ## Disclaimer
 
-This is provided with no expressed or implied warranty.  This is just a guideline for building a lab / workshop environment.  This is by no means an endorsement of running the contained systems in a production environment as outlined here.  Cisco has production grade deployment guides on (Cisco.com)[https://www.cisco.com] that should be followed to ensure a supportable production ready deployment. 
+This is provided with no expressed or implied warranty.  This is just a guideline for building a lab / workshop environment.  This is by no means an endorsement of running the contained systems in a production environment as outlined here.  Cisco has production grade deployment guides on (Cisco.com)[https://www.cisco.com] that should be followed to ensure a supportable production ready deployment.
