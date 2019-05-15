@@ -37,7 +37,7 @@ VLAN 10 - Management VLAN , This is where all the Students will end up when they
 
 #### Pod Networking
 
-
+![High Level Architecture](https://github.com/naboyd/C9800-LAB/blob/master/Cat9kLABDrawings/Architecture.png)
 
 ### Infrastructure
 
