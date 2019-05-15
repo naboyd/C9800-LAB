@@ -19,6 +19,8 @@ naboyd@nuc03:/etc/libvirt/qemu$ sudo virsh edit ISE-2.4
   </sysinfo>
 
 <!-- *** Add Below Line to  <os> section --> 
-       <smbios mode='sysinfo'/>
-  </os>
-
+<os> 
+  <smbios mode='sysinfo'/>
+</os>      
+ 
+  
