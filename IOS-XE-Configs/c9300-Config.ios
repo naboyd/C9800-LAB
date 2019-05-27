@@ -1,0 +1,698 @@
+
+!
+! Last configuration change at 15:02:26 EST Mon May 27 2019
+!
+version 16.8
+no service pad
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+no platform punt-keepalive disable-kernel-core
+!
+hostname C9300
+!
+!
+vrf definition Mgmt-vrf
+ !
+ address-family ipv4
+ exit-address-family
+ !
+ address-family ipv6
+ exit-address-family
+!
+enable secret 5 $1$Jdkk$LJmvCNMn/JE8As0ORpdms.
+enable password 7 00271A1507542F282E
+!
+no aaa new-model
+clock timezone EST -4 0
+switch 1 provision c9300-24p
+!
+!
+!
+!
+ip routing
+!
+!
+!
+!
+ip nbar http-services
+!
+!
+!
+ip name-server 10.10.0.2
+ip domain list 10.10.0.2
+ip domain lookup recursive
+ip domain name C9800-testdrive.us
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+flow record defaultApplicationTraffic
+ match ipv4 protocol
+ match ipv4 source address
+ match ipv4 destination address
+ match transport source-port
+ match transport destination-port
+ collect transport tcp flags
+ collect counter packets long
+!
+!
+flow exporter export_Vlan10_10.10.10.254_10.10.10.2
+ destination 10.10.10.2
+ source Vlan10
+ transport udp 2055
+!
+!
+flow monitor datXVlan10_0a0a0afe_0a0a0a02
+ exporter export_Vlan10_10.10.10.254_10.10.10.2
+ record defaultApplicationTraffic
+!
+cpp system-default
+!
+crypto pki trustpoint TP-self-signed-1918126099
+ enrollment selfsigned
+ subject-name cn=IOS-Self-Signed-Certificate-1918126099
+ revocation-check none
+ rsakeypair TP-self-signed-1918126099
+!
+!
+crypto pki certificate chain TP-self-signed-1918126099
+ certificate self-signed 01
+  30820330 30820218 A0030201 02020101 300D0609 2A864886 F70D0101 05050030 
+  31312F30 2D060355 04031326 494F532D 53656C66 2D536967 6E65642D 43657274 
+  69666963 6174652D 31393138 31323630 3939301E 170D3139 30333231 32323439 
+  35355A17 0D323030 31303130 30303030 305A3031 312F302D 06035504 03132649 
+  4F532D53 656C662D 5369676E 65642D43 65727469 66696361 74652D31 39313831 
+  32363039 39308201 22300D06 092A8648 86F70D01 01010500 0382010F 00308201 
+  0A028201 0100C320 0D4DDC3B 211746CF 9E31C204 5A698C52 64B635F3 A74CDF39 
+  E350168B B746370D 85B11E3F 88D03A7B 962EFB24 FF76A9A7 B1AD9218 78CAB518 
+  3A8A811F 8291CB15 4ACD5ED3 266E3739 542005A5 99EAE60D 43DA7C39 3FC5B389 
+  4A98F8A7 F73F29A8 78DC0670 2C041927 3578B406 5F5DFDA1 398C3CD6 2F935577 
+  CEC3EBB1 0B053CE3 EA628AC4 4C05A957 3AD6E31B 423FC83C B869801A 72CBB896 
+  F8AC1D51 E9C4C7F1 DAD7EFE4 CC47CDBB 7414959E 369775F2 473447F4 4362C76A 
+  1CB3C732 C9463929 69A86593 8D4E5078 1770D232 610FB9A3 34F340FE E4BE3ACD 
+  62664613 255F43E5 400B3543 7B1A83CD 11D0480A ACE2CCB0 33505C29 87495F2F 
+  A6943053 82F90203 010001A3 53305130 0F060355 1D130101 FF040530 030101FF 
+  301F0603 551D2304 18301680 14D0A15B B904218B 7AAEF8A1 4A9E2CC7 81AEA63D 
+  A5301D06 03551D0E 04160414 D0A15BB9 04218B7A AEF8A14A 9E2CC781 AEA63DA5 
+  300D0609 2A864886 F70D0101 05050003 82010100 1EDA3B19 37E1C9EA 2FD72F38 
+  55B32786 68FEA241 A206BE1A 7A1639CC D5F3BC4E F2584AE3 B398A316 6AB95A04 
+  01CB2AF2 B9CF08EF 8A62712F 89DD3703 5700E6CE 1C4ED681 F018E915 F650045B 
+  DAFCC8B3 E0EBEB01 0F873768 658AED1C F51121B7 16545CBC C7D1E7DB 113E8B28 
+  78706A7C 22D73E15 EDE7583F 9EB1A92C 146B7A83 444F17CD 7A4A5EE0 65057EB3 
+  DC40E42C B5EB7E70 64752F61 929BA1EA 285656BE C0CBDCC9 AFDCE707 7F2F3D3A 
+  2601D274 B24540D2 FF5DAC42 1B19464B 32435709 B084855F 61388AC0 46B35963 
+  2DDEE308 2385A81F 4AE5AAB3 09441BF7 CD060562 6251382D 5FB81D39 51E1337E 
+  33346FB5 4284057A 6DA10AEE 8D3AF885 95127EC5
+  	quit
+!
+!
+!
+diagnostic bootup level minimal
+!
+spanning-tree mode rapid-pvst
+spanning-tree extend system-id
+!
+!
+username netadmin privilege 5 password 7 03275218050005626F48
+username labadmin privilege 15 password 7 13261E01085C20040B
+!
+redundancy
+ mode sso
+service-routing mdns-sd
+!
+!
+!
+!
+!
+!
+class-map match-all WEBUI-BROADCAST_VIDEO-NBAR
+ match protocol attribute traffic-class broadcast-video
+ match protocol attribute business-relevance business-relevant
+class-map match-any system-cpp-police-topology-control
+  description Topology control
+class-map match-any system-cpp-police-sw-forward
+  description Sw forwarding, L2 LVX data, LOGGING
+class-map match-all WEBUI-VOICE-NBAR
+ match protocol attribute traffic-class voip-telephony
+ match protocol attribute business-relevance business-relevant
+class-map match-all WEBUI-BULK_DATA-NBAR
+ match protocol attribute traffic-class bulk-data
+ match protocol attribute business-relevance business-relevant
+class-map match-any system-cpp-default
+  description EWLC control, EWLC data 
+class-map match-all WEBUI-SIGNALING-NBAR
+ match protocol attribute traffic-class signaling
+ match protocol attribute business-relevance business-relevant
+class-map match-any WEBUI-NETWORK_CONTROL-DSCP
+ match dscp cs2 
+ match dscp cs3 
+ match dscp cs6 
+ match dscp cs7 
+class-map match-all WEBUI-SCAVENGER-NBAR
+ match protocol attribute business-relevance business-irrelevant
+class-map match-any system-cpp-police-sys-data
+  description Learning cache ovfl, Crypto Control, Exception, EGR Exception, NFL SAMPLED DATA, Gold Pkt, RPF Failed
+class-map match-any WEBUI-SCAVENGER-DSCP
+ match dscp cs1 
+class-map match-all WEBUI-NETWORK_CONTROL-NBAR
+ match protocol attribute traffic-class network-control
+ match protocol attribute business-relevance business-relevant
+class-map match-any WEBUI-BULK_DATA-DSCP
+ match dscp af11 
+ match dscp af12 
+ match dscp af13 
+class-map match-any WEBUI-BROADCAST_VIDEO-DSCP
+ match dscp cs4 
+ match dscp af41 
+ match dscp af42 
+ match dscp af43 
+ match dscp cs5 
+class-map match-all WEBUI-MULTIMEDIA_CONFERENCING-NBAR
+ match protocol attribute traffic-class multimedia-conferencing
+ match protocol attribute business-relevance business-relevant
+class-map match-any system-cpp-police-punt-webauth
+  description Punt Webauth
+class-map match-any WEBUI-VOICE-DSCP
+ match dscp ef 
+class-map match-any system-cpp-police-l2lvx-control
+  description L2 LVX control packets
+class-map match-any system-cpp-police-forus
+  description Forus Address resolution and Forus traffic
+class-map match-any system-cpp-police-multicast-end-station
+  description MCAST END STATION
+class-map match-any system-cpp-police-multicast
+  description Transit Traffic and MCAST Data
+class-map match-all WEBUI-NETWORK_MANAGEMENT-NBAR
+ match protocol attribute traffic-class ops-admin-mgmt
+ match protocol attribute business-relevance business-relevant
+class-map match-any system-cpp-police-l2-control
+  description L2 control
+class-map match-any system-cpp-police-dot1x-auth
+  description DOT1X Auth
+class-map match-any WEBUI-MULTIMEDIA_STREAMING-DSCP
+ match dscp af31 
+ match dscp af32 
+ match dscp af33 
+class-map match-any system-cpp-police-data
+  description ICMP redirect, ICMP_GEN and BROADCAST
+class-map match-all WEBUI-REALTIME_INTERACTIVE-NBAR
+ match protocol attribute traffic-class real-time-interactive
+ match protocol attribute business-relevance business-relevant
+class-map match-any WEBUI-TRANSACTIONAL_DATA-DSCP
+ match dscp af21 
+ match dscp af22 
+ match dscp af23 
+class-map match-all WEBUI-TRANSACTIONAL_DATA-NBAR
+ match protocol attribute traffic-class transactional-data
+ match protocol attribute business-relevance business-relevant
+class-map match-any system-cpp-police-control-low-priority
+  description General punt
+class-map match-any non-client-nrt-class
+class-map match-all WEBUI-MULTIMEDIA_STREAMING-NBAR
+ match protocol attribute traffic-class multimedia-streaming
+ match protocol attribute business-relevance business-relevant
+class-map match-any system-cpp-police-routing-control
+  description Routing control and Low Latency
+class-map match-any system-cpp-police-protocol-snooping
+  description Protocol snooping
+class-map match-any system-cpp-police-dhcp-snooping
+  description DHCP snooping
+!
+policy-map WEBUI-MARKING-IN
+ class WEBUI-VOICE-NBAR
+  set dscp ef
+ class WEBUI-BROADCAST_VIDEO-NBAR
+  set dscp cs5
+ class WEBUI-REALTIME_INTERACTIVE-NBAR
+  set dscp cs4
+ class WEBUI-MULTIMEDIA_CONFERENCING-NBAR
+  set dscp af41
+ class WEBUI-MULTIMEDIA_STREAMING-NBAR
+  set dscp af31
+ class WEBUI-SIGNALING-NBAR
+  set dscp cs3
+ class WEBUI-NETWORK_CONTROL-NBAR
+  set dscp cs6
+ class WEBUI-NETWORK_MANAGEMENT-NBAR
+  set dscp cs2
+ class WEBUI-TRANSACTIONAL_DATA-NBAR
+  set dscp af21
+ class WEBUI-BULK_DATA-NBAR
+  set dscp af11
+ class WEBUI-SCAVENGER-NBAR
+  set dscp cs1
+ class class-default
+  set dscp default
+policy-map system-cpp-policy
+ class system-cpp-police-data
+  police rate 600 pps
+ class system-cpp-police-sys-data
+  police rate 100 pps
+ class system-cpp-police-sw-forward
+  police rate 1000 pps
+ class system-cpp-police-multicast
+  police rate 500 pps
+ class system-cpp-police-multicast-end-station
+  police rate 2000 pps
+ class system-cpp-police-punt-webauth
+  police rate 1000 pps
+ class system-cpp-police-l2-control
+  police rate 2000 pps
+ class system-cpp-police-routing-control
+  police rate 5400 pps
+ class system-cpp-police-control-low-priority
+  police rate 200 pps
+ class system-cpp-police-l2lvx-control
+  police rate 1000 pps
+ class system-cpp-police-topology-control
+  police rate 13000 pps
+ class system-cpp-police-dot1x-auth
+  police rate 1000 pps
+ class system-cpp-police-protocol-snooping
+  police rate 2000 pps
+ class system-cpp-police-dhcp-snooping
+  police rate 500 pps
+ class system-cpp-police-forus
+  police rate 4000 pps
+ class system-cpp-default
+  police rate 2000 pps
+policy-map WEBUI-QUEUING-OUT
+ class WEBUI-VOICE-DSCP
+  priority level 1 percent 1
+  queue-buffers ratio 5
+ class WEBUI-BROADCAST_VIDEO-DSCP
+  priority level 2 percent 30
+  queue-buffers ratio 5
+ class WEBUI-NETWORK_CONTROL-DSCP
+  bandwidth remaining percent 10 
+  queue-buffers ratio 5
+ class WEBUI-MULTIMEDIA_STREAMING-DSCP
+  bandwidth remaining percent 20 
+  queue-buffers ratio 10
+  queue-limit dscp af33 percent 80
+  queue-limit dscp af32 percent 90
+  queue-limit dscp af31 percent 100
+ class WEBUI-TRANSACTIONAL_DATA-DSCP
+  bandwidth remaining percent 20 
+  queue-buffers ratio 10
+  queue-limit dscp af23 percent 80
+  queue-limit dscp af22 percent 90
+  queue-limit dscp af21 percent 100
+ class WEBUI-BULK_DATA-DSCP
+  bandwidth remaining percent 14 
+  queue-buffers ratio 20
+  queue-limit dscp af13 percent 80
+  queue-limit dscp af12 percent 90
+  queue-limit dscp af11 percent 100
+ class WEBUI-SCAVENGER-DSCP
+  bandwidth remaining percent 1 
+  queue-buffers ratio 5
+ class class-default
+  bandwidth remaining percent 35 
+  queue-buffers ratio 40
+!
+! 
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface GigabitEthernet0/0
+ vrf forwarding Mgmt-vrf
+ no ip address
+ shutdown
+ speed 1000
+ negotiation auto
+!
+interface GigabitEthernet1/0/1
+ description Inside Interface ASA 
+ switchport access vlan 254
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 input
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 output
+ service-policy input WEBUI-MARKING-IN
+ service-policy output WEBUI-QUEUING-OUT
+ ip nbar protocol-discovery
+!
+interface GigabitEthernet1/0/2
+ description Client Interface ASA
+ switchport access vlan 10
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 input
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 output
+ service-policy input WEBUI-MARKING-IN
+ service-policy output WEBUI-QUEUING-OUT
+ ip nbar protocol-discovery
+!
+interface GigabitEthernet1/0/3
+ description Trunk to NUC 
+ switchport mode trunk
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 input
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 output
+ service-policy input WEBUI-MARKING-IN
+ service-policy output WEBUI-QUEUING-OUT
+ ip nbar protocol-discovery
+ ip dhcp snooping trust
+!
+interface GigabitEthernet1/0/4
+ description Trunk to NUC
+ switchport access vlan 11
+ switchport mode trunk
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 input
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 output
+ ip dhcp snooping trust
+!
+interface GigabitEthernet1/0/5
+ description Pod 1 APs 
+ switchport access vlan 111
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 input
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 output
+!
+interface GigabitEthernet1/0/6
+ description Pod 1 APs 
+ switchport access vlan 111
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 input
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 output
+!
+interface GigabitEthernet1/0/7
+ description Pod 2 APs 
+ switchport access vlan 121
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 input
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 output
+!
+interface GigabitEthernet1/0/8
+ description Pod 2 APs 
+ switchport access vlan 121
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 input
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 output
+!
+interface GigabitEthernet1/0/9
+ description Pod 3 APs 
+ switchport access vlan 131
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 input
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 output
+!
+interface GigabitEthernet1/0/10
+ description Pod 3 APs 
+ switchport access vlan 131
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 input
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 output
+!
+interface GigabitEthernet1/0/11
+ description Pod 4 APs 
+ switchport access vlan 141
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 input
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 output
+!
+interface GigabitEthernet1/0/12
+ description Pod 4 APs 
+ switchport access vlan 141
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 input
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 output
+!
+interface GigabitEthernet1/0/13
+ description Pod 5 APs 
+ switchport access vlan 151
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 input
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 output
+!
+interface GigabitEthernet1/0/14
+ description Pod 5 APs 
+ switchport access vlan 151
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 input
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 output
+!
+interface GigabitEthernet1/0/15
+ description Pod 6 APs 
+ switchport access vlan 161
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 input
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 output
+!
+interface GigabitEthernet1/0/16
+ description Pod 6 APs 
+ switchport access vlan 161
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 input
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 output
+!
+interface GigabitEthernet1/0/17
+ description Pod 7 APs 
+ switchport access vlan 171
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 input
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 output
+!
+interface GigabitEthernet1/0/18
+ description Pod 7 APs 
+ switchport access vlan 171
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 input
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 output
+!
+interface GigabitEthernet1/0/19
+ description Pod 8 APs 
+ switchport access vlan 181
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 input
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 output
+!
+interface GigabitEthernet1/0/20
+ description Pod 8 APs 
+ switchport access vlan 181
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 input
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 output
+!
+interface GigabitEthernet1/0/21
+ description Pod 3 APs 
+ switchport access vlan 131
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 input
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 output
+!
+interface GigabitEthernet1/0/22
+ description Pod 3 APs 
+ switchport access vlan 131
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 input
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 output
+!
+interface GigabitEthernet1/0/23
+ description pod 0 AP
+ switchport access vlan 11
+ switchport mode access
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 input
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 output
+!
+interface GigabitEthernet1/0/24
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 input
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 output
+!
+interface GigabitEthernet1/1/1
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 input
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 output
+!
+interface GigabitEthernet1/1/2
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 input
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 output
+!
+interface GigabitEthernet1/1/3
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 input
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 output
+!
+interface GigabitEthernet1/1/4
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 input
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 output
+!
+interface TenGigabitEthernet1/1/1
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 input
+ ip flow monitor datXVlan10_0a0a0afe_0a0a0a02 output
+ service-policy output WEBUI-QUEUING-OUT
+!
+interface TenGigabitEthernet1/1/2
+ service-policy output WEBUI-QUEUING-OUT
+!
+interface TenGigabitEthernet1/1/3
+ service-policy output WEBUI-QUEUING-OUT
+!
+interface TenGigabitEthernet1/1/4
+ service-policy output WEBUI-QUEUING-OUT
+!
+interface TenGigabitEthernet1/1/5
+ service-policy output WEBUI-QUEUING-OUT
+!
+interface TenGigabitEthernet1/1/6
+ service-policy output WEBUI-QUEUING-OUT
+!
+interface TenGigabitEthernet1/1/7
+ service-policy output WEBUI-QUEUING-OUT
+!
+interface TenGigabitEthernet1/1/8
+ service-policy output WEBUI-QUEUING-OUT
+!
+interface FortyGigabitEthernet1/1/1
+ service-policy output WEBUI-QUEUING-OUT
+!
+interface FortyGigabitEthernet1/1/2
+ service-policy output WEBUI-QUEUING-OUT
+!
+interface TwentyFiveGigE1/1/1
+!
+interface TwentyFiveGigE1/1/2
+!
+interface Vlan1
+ ip address 10.10.0.254 255.255.255.0
+!
+interface Vlan10
+ ip address 10.10.10.254 255.255.255.0
+ ip helper-address 10.10.0.3
+ service-routing mdns-sd
+  designated-gateway enable
+!
+interface Vlan11
+ ip address 10.10.11.254 255.255.255.0
+ ip helper-address 10.10.0.2
+ ip helper-address 10.10.10.2
+ ip helper-address 10.10.0.3
+!
+interface Vlan15
+ ip address 10.10.15.254 255.255.255.0
+ ip helper-address 10.10.0.2
+ ip helper-address 10.10.10.2
+!
+interface Vlan110
+ ip address 10.10.110.254 255.255.255.0
+ ip helper-address 10.10.10.2
+ ip helper-address 10.10.0.3
+!
+interface Vlan111
+ ip address 10.10.111.254 255.255.255.0
+ ip helper-address 10.10.10.2
+ ip helper-address 10.10.0.3
+!
+interface Vlan120
+ ip address 10.10.120.254 255.255.255.0
+ ip helper-address 10.10.10.2
+ ip helper-address 10.10.0.3
+!
+interface Vlan121
+ ip address 10.10.121.254 255.255.255.0
+ ip helper-address 10.10.10.2
+ ip helper-address 10.10.0.3
+!
+interface Vlan130
+ ip address 10.10.130.254 255.255.255.0
+ ip helper-address 10.10.10.2
+ ip helper-address 10.10.0.3
+!
+interface Vlan131
+ ip address 10.10.131.254 255.255.255.0
+ ip helper-address 10.10.0.2
+ ip helper-address 10.10.10.2
+ ip helper-address 10.10.0.3
+!
+interface Vlan140
+ ip address 10.10.140.254 255.255.255.0
+ ip helper-address 10.10.0.2
+ ip helper-address 10.10.10.2
+ ip helper-address 10.10.0.3
+!
+interface Vlan141
+ ip address 10.10.141.254 255.255.255.0
+ ip helper-address 10.10.0.2
+ ip helper-address 10.10.10.2
+ ip helper-address 10.10.0.3
+!
+interface Vlan150
+ ip address 10.10.150.254 255.255.255.0
+ ip helper-address 10.10.10.2
+ ip helper-address 10.10.0.3
+!
+interface Vlan151
+ ip address 10.10.151.254 255.255.255.0
+ ip helper-address 10.10.10.2
+ ip helper-address 10.10.0.3
+!
+interface Vlan160
+ ip address 10.10.160.254 255.255.255.0
+ ip helper-address 10.10.10.2
+ ip helper-address 10.10.0.3
+!
+interface Vlan161
+ ip address 10.10.161.254 255.255.255.0
+ ip helper-address 10.10.10.2
+ ip helper-address 10.10.0.3
+!
+interface Vlan170
+ ip address 10.10.170.254 255.255.255.0
+ ip helper-address 10.10.10.2
+ ip helper-address 10.10.0.3
+!
+interface Vlan171
+ ip address 10.10.171.254 255.255.255.0
+ ip helper-address 10.10.10.2
+ ip helper-address 10.10.0.3
+!
+interface Vlan180
+ ip address 10.10.180.254 255.255.255.0
+ ip helper-address 10.10.10.2
+ ip helper-address 10.10.0.3
+!
+interface Vlan181
+ ip address 10.10.181.254 255.255.255.0
+ ip helper-address 10.10.10.2
+ ip helper-address 10.10.0.3
+!
+interface Vlan200
+ ip address 10.10.200.254 255.255.255.0
+ ip helper-address 10.10.10.2
+!
+interface Vlan201
+ ip address 10.10.201.254 255.255.255.0
+ ip helper-address 10.10.10.2
+!
+interface Vlan254
+ description ASA NextHop
+ ip address 10.10.254.254 255.255.255.0
+!
+ip forward-protocol nd
+ip http server
+ip http authentication local
+ip http secure-server
+ip route 0.0.0.0 0.0.0.0 10.10.254.1
+!
+ip ssh version 2
+!
+!
+!
+!
+!
+control-plane
+ service-policy input system-cpp-policy
+!
+!
+line con 0
+ stopbits 1
+line vty 0 4
+ password 7 05280F1C22436A273844
+ login local
+line vty 5 15
+ password 7 13261E01080320040A65
+ login
+!
+ntp server 10.10.10.2
+!
+mac address-table notification mac-move
+wsma agent exec
+!
+wsma agent config
+!
+wsma agent filesys
+!
+wsma agent notify
+!
+!
+end
