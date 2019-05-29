@@ -1,11 +1,11 @@
 
 !
-! Last configuration change at 15:25:19 EST Mon May 6 2019 by netadmin
+! Last configuration change at 15:28:08 EST Wed May 29 2019 by netadmin
+! NVRAM config last updated at 15:28:09 EST Wed May 29 2019 by netadmin
 !
-version 16.10
+version 16.11
 service timestamps debug datetime msec
 service timestamps log datetime msec
-! Call-home is enabled by Smart-Licensing.
 service call-home
 platform qfp utilization monitor load 80
 no platform punt-keepalive disable-kernel-core
@@ -14,6 +14,7 @@ platform console virtual
 hostname C9800-POD07
 !
 boot-start-marker
+boot system bootflash:packages.conf
 boot-end-marker
 !
 !
@@ -21,6 +22,7 @@ enable secret 9 $9$JhGwFDDGYE1pD.$07Yz8ip70/AM0UKvgHNtUwcAh0tqwbdaNP3kO.aOzFw
 !
 no aaa new-model
 clock timezone EST -4 0
+clock calendar-valid
 call-home
  ! If contact email address in call-home is configured as sch-smart-licensing@cisco.com
  ! the email address configured in Cisco Smart License Portal will be used as contact email address to send SCH notifications.
@@ -36,7 +38,8 @@ call-home
 !
 !
 !
-ip name-server 208.67.222.222
+ip name-server 10.10.10.2
+ip domain name C9800-Testdrive.us
 !
 !
 !
@@ -53,12 +56,22 @@ subscriber templating
 ! 
 ! 
 ! 
+!
 no device-tracking logging theft
 multilink bundle-name authenticated
 !
 !
 !
 !
+!
+!
+crypto pki server ca
+ database archive pkcs12 password 7 106D000A061836252D45
+ issuer-name O=Cisco Virtual Wireless LAN Controller, CN=CA-vWLC-default
+ grant auto
+ hash sha256
+ lifetime certificate 3652
+ lifetime ca-certificate 3652
 !
 crypto pki trustpoint SLA-TrustPoint
  enrollment pkcs12
@@ -70,11 +83,43 @@ crypto pki trustpoint TP-self-signed-888208056
  revocation-check none
  rsakeypair TP-self-signed-888208056
 !
+crypto pki trustpoint ca
+ revocation-check crl
+ rsakeypair ca
+!
+crypto pki trustpoint ewlc-default-tp
+ enrollment url http://10.10.171.10:80
+ serial-number
+ password 7 03275218050005626F48
+ subject-name O=Cisco Virtual Wireless LAN Controller, CN=DEVICE-vWLC
+ revocation-check crl
+ rsakeypair ewlc-default-tp
+ hash sha256
+ eku request server-auth client-auth 
+!
+crypto pki trustpoint C9800-POD07_WLC_TP
+ enrollment url http://10.10.171.10:80
+ serial-number
+ password 7 123A0C041104282A0B6A
+ subject-name O=Cisco Virtual Wireless LAN Controller, CN=C9800-POD07_WLC_TP
+ revocation-check crl
+ rsakeypair C9800-POD07_WLC_TP
+ hash sha256
+ eku request server-auth client-auth 
+!
 !
 crypto pki certificate chain SLA-TrustPoint
  certificate ca 01 nvram:CiscoLicensi#1CA.cer
 crypto pki certificate chain TP-self-signed-888208056
  certificate self-signed 01 nvram:IOS-Self-Sig#2.cer
+crypto pki certificate chain ca
+ certificate ca 01 nvram:CiscoVirtual#2CA.cer
+crypto pki certificate chain ewlc-default-tp
+ certificate 02 nvram:CiscoVirtual#3.cer
+ certificate ca 01 nvram:CiscoVirtual#2CA.cer
+crypto pki certificate chain C9800-POD07_WLC_TP
+ certificate 03 nvram:CiscoVirtual#4.cer
+ certificate ca 01 nvram:CiscoVirtual#2CA.cer
 !
 !
 !
@@ -86,9 +131,8 @@ crypto pki certificate chain TP-self-signed-888208056
 license udi pid C9800-CL-K9 sn 94EBUKLDVQH
 device classifier
 diagnostic bootup level minimal
+memory free low-watermark processor 73288
 !
-!
-spanning-tree extend system-id
 !
 !
 username netadmin privilege 15 password 0 CiscoDNA!
@@ -158,6 +202,7 @@ ip http authentication local
 ip http secure-server
 !
 ip route 0.0.0.0 0.0.0.0 10.101.10.254
+ip route 0.0.0.0 0.0.0.0 10.10.10.254
 ip ssh version 2
 !
 !
@@ -175,6 +220,7 @@ line con 0
  stopbits 1
 line vty 0 4
  login local
+ length 0
 line vty 5 15
  login
 !
@@ -185,8 +231,10 @@ ntp server 10.10.10.2 prefer
 !
 !
 !
+wireless mobility group name POD07
 wireless aaa policy default-aaa-policy
 wireless cts-sxp profile default-sxp-profile
+wireless management trustpoint C9800-POD07_WLC_TP
 wireless management interface Vlan171
 wireless profile airtime-fairness default-atf-policy 0
 wireless profile flex default-flex-profile
@@ -202,6 +250,7 @@ wireless tag policy default-policy-tag
 wireless tag rf default-rf-tag
  description "default RF tag"
 wireless mgmt-via-wireless
+wireless rf-network POD07
 wireless fabric control-plane default-control-plane
 ap dot11 24ghz rf-profile Low_Client_Density_rf_24gh
  coverage data rssi threshold -90
@@ -231,7 +280,6 @@ ap dot11 24ghz rf-profile Typical_Client_Density_rf_24gh
  rate RATE_5_5M disable
  rate RATE_6M disable
  no shutdown
-ap dot11 24ghz shutdown
 ap dot11 5ghz rf-profile Low_Client_Density_rf_5gh
  coverage data rssi threshold -90
  coverage level 2
@@ -251,7 +299,6 @@ ap dot11 5ghz rf-profile High_Client_Density_rf_5gh
 ap dot11 5ghz rf-profile Typical_Client_Density_rf_5gh
  description "pre configured Typical Density rfprofile for 5gh radio"
  no shutdown
-ap dot11 5ghz shutdown
 ap country US
 ap tag-source-priority 2 source filter
 ap tag-source-priority 3 source ap

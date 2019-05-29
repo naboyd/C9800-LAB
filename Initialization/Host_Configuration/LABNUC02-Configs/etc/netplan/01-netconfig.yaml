@@ -1,0 +1,29 @@
+network:
+
+    version: 2
+
+    renderer: networkd
+
+    ethernets:
+      eno1:
+        dhcp4: no
+        
+    bridges:
+      br0:     
+        
+        addresses: [10.10.0.3/24]
+        gateway4: 10.10.0.254
+        nameservers:
+            addresses: [10.10.10.2]
+            search: [c9800-testdrive.us]
+        interfaces:
+          - eno1
+        parameters:
+            stp: false
+    vlans:
+       vlan10:
+         accept-ra: no
+         id: 10
+         link: br0
+         addresses: [10.10.10.3/24]
+       

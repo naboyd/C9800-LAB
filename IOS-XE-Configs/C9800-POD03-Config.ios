@@ -1,7 +1,7 @@
 
 !
-! Last configuration change at 08:40:58 EST Wed May 1 2019 by netadmin
-! NVRAM config last updated at 08:41:06 EST Wed May 1 2019 by netadmin
+! Last configuration change at 15:13:27 EST Wed May 29 2019 by netadmin
+! NVRAM config last updated at 15:13:28 EST Wed May 29 2019 by netadmin
 !
 version 16.11
 service timestamps debug datetime msec
@@ -17,6 +17,7 @@ boot-start-marker
 boot-end-marker
 !
 !
+enable password CiscoDNA!
 !
 no aaa new-model
 clock timezone EST -4 0
@@ -36,7 +37,8 @@ call-home
 !
 !
 !
-ip name-server 208.67.222.222
+ip name-server 10.10.10.2
+ip domain name C9800-Testdrive.us
 !
 !
 !

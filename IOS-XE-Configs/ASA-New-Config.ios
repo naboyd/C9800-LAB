@@ -9,8 +9,8 @@ ASA-5506# show run
 ASA Version 9.3(2)2
 !
 hostname ASA-5506
-domain-name lab.nathanboyd.com
-enable password TFUgjF1xc8OKrZpi encrypted
+domain-name C9800-Testdrive.us
+
 xlate per-session deny tcp any4 any4
 xlate per-session deny tcp any4 any6
 xlate per-session deny tcp any6 any4
@@ -129,7 +129,7 @@ webvpn
  anyconnect-essentials
  error-recovery disable
 dynamic-access-policy-record DfltAccessPolicy
-username netadmin password Xu8b/ymTPNyYkFt. encrypted privilege 15
+username netadmin password yourpasswordhere privilege 15
 !
 class-map inspection_default
  match default-inspection-traffic

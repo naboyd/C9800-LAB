@@ -1,7 +1,7 @@
 
 !
-! Last configuration change at 12:45:00 UTC Wed May 1 2019 by netadmin
-! NVRAM config last updated at 12:45:03 UTC Wed May 1 2019 by netadmin
+! Last configuration change at 19:10:07 UTC Wed May 29 2019 by netadmin
+! NVRAM config last updated at 19:10:08 UTC Wed May 29 2019 by netadmin
 !
 version 16.11
 service timestamps debug datetime msec
@@ -37,7 +37,7 @@ call-home
 !
 !
 !
-ip name-server 208.67.222.222
+ip name-server 10.10.10.2
 !
 !
 !

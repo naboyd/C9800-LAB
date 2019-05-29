@@ -1,12 +1,11 @@
 
 !
-! Last configuration change at 14:52:27 EST Wed May 1 2019
-! NVRAM config last updated at 14:52:43 EST Wed May 1 2019 by netadmin
+! Last configuration change at 15:32:03 EST Wed May 29 2019
+! NVRAM config last updated at 15:33:45 EST Wed May 29 2019 by netadmin
 !
-version 16.10
+version 16.11
 service timestamps debug datetime msec
 service timestamps log datetime msec
-! Call-home is enabled by Smart-Licensing.
 service call-home
 platform qfp utilization monitor load 80
 no platform punt-keepalive disable-kernel-core
@@ -15,11 +14,29 @@ platform console virtual
 hostname C9800-POD06
 !
 boot-start-marker
+boot system bootflash:packages.conf
 boot-end-marker
 !
 !
+enable secret 9 $9$Wi4erE3I4Ldlok$RRX7U9gH/VZgkHVcgQqDAMSgPCzyk.GL4UaNJ.QgBXc
 !
-no aaa new-model
+aaa new-model
+!
+!
+aaa group server radius ISE-Server-Group
+ server name ISE
+!
+aaa authentication dot1x ISE-ML group ISE-Server-Group
+!
+!
+!
+!
+!
+aaa server radius dynamic-author
+ client 10.10.10.20 server-key CiscoDNA!
+ client 10.10.0.20 server-key CiscoDNA!
+!
+aaa session-id common
 clock timezone EST -4 0
 clock calendar-valid
 call-home
@@ -37,7 +54,8 @@ call-home
 !
 !
 !
-ip name-server 208.67.222.222
+ip name-server 10.10.10.2
+ip domain name C9800-testdrive.us
 !
 !
 !
@@ -54,8 +72,10 @@ subscriber templating
 ! 
 ! 
 ! 
+!
 no device-tracking logging theft
 multilink bundle-name authenticated
+!
 !
 !
 !
@@ -114,9 +134,8 @@ crypto pki certificate chain ewlc-default-tp
 license udi pid C9800-CL-K9 sn 9MPMVAUS2G8
 device classifier
 diagnostic bootup level minimal
+memory free low-watermark processor 73288
 !
-!
-spanning-tree extend system-id
 !
 !
 username netadmin privilege 15 password 0 CiscoDNA!
@@ -175,6 +194,12 @@ interface Vlan10
  no mop enabled
  no mop sysid
 !
+interface Vlan105
+ description mgmnt
+ ip address 172.20.228.136 255.255.255.224
+ no mop enabled
+ no mop sysid
+!
 interface Vlan161
  description Wireless_AP_Manager
  ip address 10.10.161.10 255.255.255.0
@@ -193,6 +218,12 @@ ip ssh version 2
 !
 !
 !
+!
+radius server ISE
+ address ipv4 10.10.0.20 auth-port 1812 acct-port 1813
+ key CiscoDNA!
+!
+!
 control-plane
 !
 !
@@ -203,9 +234,8 @@ control-plane
 line con 0
  stopbits 1
 line vty 0 4
- login local
+ length 0
 line vty 5 15
- login
 !
 ntp server 10.10.10.2 prefer
 !
@@ -214,6 +244,8 @@ ntp server 10.10.10.2 prefer
 !
 !
 !
+wireless mobility group name sevt
+wireless mobility mac-address 001e.e5b9.2fff
 wireless aaa policy default-aaa-policy
 wireless cts-sxp profile default-sxp-profile
 wireless management trustpoint ewlc-default-tp
@@ -223,16 +255,42 @@ wireless profile flex default-flex-profile
  description "default flex profile"
 wireless profile mesh default-mesh-profile
  description "default mesh profile"
+wireless profile policy pod-site_WLANID_1
+ description pod-site_#POD6
+ vlan POD06-Clients
+ no shutdown
 wireless profile policy default-policy-profile
  description "default policy profile"
+wireless tag site pod-site
+ ap-profile pod-site
+wireless tag site POD6-SiteB
+ ap-profile POD6-SiteB
+wireless tag site pod6-siteB
+ ap-profile pod6-siteB
 wireless tag site default-site-tag
  description "default site tag"
+wireless tag policy pod-site
+ wlan #POD6 policy pod-site_WLANID_1
+wireless tag policy POD6-SiteB
+wireless tag policy pod6-siteB
 wireless tag policy default-policy-tag
  description "default policy-tag"
+wireless tag rf pod-site
+ 24ghz-rf-policy Typical_Client_Density_rf_24gh
+ 5ghz-rf-policy Typical_Client_Density_rf_5gh
+wireless tag rf POD6-SiteB
+ 24ghz-rf-policy Typical_Client_Density_rf_24gh
+ 5ghz-rf-policy Typical_Client_Density_rf_5gh
+wireless tag rf pod6-siteB
+ 24ghz-rf-policy Typical_Client_Density_rf_24gh
+ 5ghz-rf-policy Typical_Client_Density_rf_5gh
 wireless tag rf default-rf-tag
  description "default RF tag"
 wireless mgmt-via-wireless
 wireless fabric control-plane default-control-plane
+wlan #POD6 1 #POD6
+ security dot1x authentication-list ISE-ML
+ no shutdown
 ap dot11 24ghz rf-profile Low_Client_Density_rf_24gh
  coverage data rssi threshold -90
  coverage level 2
@@ -283,6 +341,21 @@ ap dot11 5ghz rf-profile Typical_Client_Density_rf_5gh
 ap country US
 ap tag-source-priority 2 source filter
 ap tag-source-priority 3 source ap
+ap location name pod-site
+ ap-eth-mac 0cd0.f894.1504
+ description pod6-site
+ tag policy pod-site
+ tag rf pod-site
+ tag site pod-site
+ap location name pod6-siteB
+ ap-eth-mac f4db.e683.6ad2
+ description pod6-siteB
+ tag policy pod6-siteB
+ tag rf pod6-siteB
+ tag site pod6-siteB
+ap profile pod-site
+ap profile POD6-SiteB
+ap profile pod6-siteB
 ap profile default-ap-profile
  description "default ap profile"
  hyperlocation ble-beacon 0
