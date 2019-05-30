@@ -20,8 +20,8 @@ vrf definition Mgmt-vrf
  address-family ipv6
  exit-address-family
 !
-enable secret 5 $1$Jdkk$LJmvCNMn/JE8As0ORpdms.
-enable password 7 00271A1507542F282E
+enable secret 5 !<YourPasswordHere>
+enable password 7!<YourPasswordHere>
 !
 no aaa new-model
 clock timezone EST -4 0
